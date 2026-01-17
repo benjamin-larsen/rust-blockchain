@@ -1,0 +1,8 @@
+[package]
+name = "account"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+bs58 = { version = "0.5.1", features = ["check"] }
+sha2 = { version = "0.10.9" }

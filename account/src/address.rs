@@ -8,7 +8,20 @@ pub struct PublicKey(pub [u8; 32]);
 #[derive(Debug)]
 pub enum DecodeError {
     Base58(Base58Error),
-    InvalidLength
+    InvalidLength,
+    InvalidChecksum
+}
+
+impl DecodeError {
+    pub fn from_base58(error: Base58Error) -> DecodeError {
+        match error {
+            Base58Error::BufferTooSmall => DecodeError::InvalidLength,
+            Base58Error::NoChecksum => DecodeError::InvalidLength,
+            Base58Error::InvalidChecksum { checksum: _, expected_checksum: _  } =>
+                DecodeError::InvalidChecksum,
+            other => DecodeError::Base58(other)
+        }
+    }
 }
 
 impl Address {
@@ -42,7 +55,7 @@ impl Address {
                 Ok(Address(address))
             }
 
-            Err(e) => Err(DecodeError::Base58(e))
+            Err(e) => Err(DecodeError::from_base58(e))
         }
     }
 }

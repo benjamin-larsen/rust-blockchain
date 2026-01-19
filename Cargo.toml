@@ -1,7 +1,8 @@
 [workspace]
 
 members = [
-  "account"
+  "account",
+  "network"
 ]
 
 resolver = "3"

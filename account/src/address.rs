@@ -12,8 +12,8 @@ pub enum DecodeError {
     InvalidChecksum
 }
 
-impl DecodeError {
-    pub fn from_base58(error: Base58Error) -> DecodeError {
+impl From<Base58Error> for DecodeError {
+    fn from(error: Base58Error) -> DecodeError {
         match error {
             Base58Error::BufferTooSmall => DecodeError::InvalidLength,
             Base58Error::NoChecksum => DecodeError::InvalidLength,
@@ -40,23 +40,17 @@ impl Address {
 
         println!("{}", string);
 
-        let decode_result = decode(string)
+        let decode_len = decode(string)
             .with_check(None)
-            .onto(&mut decode_buf);
+            .onto(&mut decode_buf)?;
 
-        match decode_result {
-            Ok(len) => {
-                if len != 32 {
-                    return Err(DecodeError::InvalidLength);
-                }
-
-                let address: [u8; 32] = decode_buf[..32].try_into().unwrap();
-
-                Ok(Address(address))
-            }
-
-            Err(e) => Err(DecodeError::from_base58(e))
+        if decode_len != 32 {
+            return Err(DecodeError::InvalidLength);
         }
+
+        let address: [u8; 32] = decode_buf[..32].try_into().unwrap();
+
+        Ok(Address(address))
     }
 }
 

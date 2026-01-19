@@ -1,0 +1,45 @@
+﻿use crate::Error;
+
+#[derive(Debug)]
+pub(crate) struct BasicHeader {
+    pub(crate) msg_type: MessageType,
+    pub(crate) msg_flags: u16,
+    pub(crate) msg_length: u32,
+}
+
+#[repr(u16)]
+#[derive(Debug)]
+pub enum MessageType {
+    Hello = 0
+}
+
+const MSG_HELLO: u16 = MessageType::Hello as u16;
+
+pub fn ValidatePayloadSize(header: &BasicHeader) -> bool {
+    return match header.msg_type {
+        MessageType::Hello => header.msg_length == 152,
+        
+        _ => true
+    }
+}
+
+impl MessageType {
+    pub fn is_basic(&self) -> bool {
+        match self {
+            MessageType::Hello => true,
+            _ => false,
+        }
+    }
+}
+
+impl TryFrom<u16> for MessageType {
+    type Error = Error;
+
+    fn try_from(value: u16) -> Result<Self, Error> {
+        match value {
+            MSG_HELLO => Ok(MessageType::Hello),
+
+            _ => Err(Error::InvalidMessage)
+        }
+    }
+}

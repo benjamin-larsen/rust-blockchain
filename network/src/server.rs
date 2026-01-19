@@ -25,12 +25,22 @@ async fn start_server(server: Arc<Server>) {
 
         tokio::spawn(async move {
             let addr = socket.peer_addr();
-            println!("Got connection from {:?}", addr);
-            handle_sock(Socket::new(
+
+            let Ok(socket) = Socket::new(
                 socket,
                 server_ref,
                 SocketDirection::Inbound
-            )).await;
+            ) else {
+                println!("Failed to initialize Socket.");
+                return;
+            };
+
+            println!("Got connection from {:?}", addr);
+
+            if let Err(err) = handle_sock(socket).await {
+                println!("{:?}", err)
+            }
+
             println!("Connection ended {:?}", addr);
         });
     }

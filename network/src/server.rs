@@ -24,12 +24,14 @@ async fn start_server(server: Arc<Server>) {
         let server_ref = server.clone();
 
         tokio::spawn(async move {
-            println!("Got connection from {:?}", socket.peer_addr());
-            handle_sock(Socket {
-                stream: socket,
-                server: server_ref,
-                direction: SocketDirection::Inbound
-            }).await;
+            let addr = socket.peer_addr();
+            println!("Got connection from {:?}", addr);
+            handle_sock(Socket::new(
+                socket,
+                server_ref,
+                SocketDirection::Inbound
+            )).await;
+            println!("Connection ended {:?}", addr);
         });
     }
 }

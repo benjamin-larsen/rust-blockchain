@@ -5,4 +5,4 @@ mod error;
 
 pub use socket::*;
 pub use server::NodeConfig;
-pub use error::Error;
+pub use error::{Error, Result};

@@ -4,7 +4,7 @@ use tokio::io::{AsyncReadExt, BufStream};
 use tokio::net::TcpStream;
 use crate::server::Server;
 use crate::messages::{MessageType, ValidatePayloadSize};
-use crate::Error;
+use crate::{Error, Result};
 use crate::messages::BasicHeader;
 use utils::slice_reader;
 
@@ -29,7 +29,7 @@ impl Socket {
             direction
         })
     }
-    async fn read_basic_header(&mut self) -> Result<BasicHeader, Error> {
+    async fn read_basic_header(&mut self) -> Result<BasicHeader> {
         let mut buf = [0u8; 8];
         let mut offset: usize = 0;
         self.stream.read_exact(&mut buf).await?;
@@ -71,7 +71,7 @@ impl Socket {
     }
 }
 
-pub async fn handle_sock(mut socket: Socket) -> Result<(), Error> {
+pub async fn handle_sock(mut socket: Socket) -> Result<()> {
     loop {
         socket.read_basic_message().await?;
     }

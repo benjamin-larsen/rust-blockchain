@@ -1,4 +1,4 @@
-﻿use crate::Error;
+﻿use crate::{Error, Result};
 
 #[derive(Debug)]
 pub(crate) struct BasicHeader {
@@ -35,7 +35,7 @@ impl MessageType {
 impl TryFrom<u16> for MessageType {
     type Error = Error;
 
-    fn try_from(value: u16) -> Result<Self, Error> {
+    fn try_from(value: u16) -> Result<Self> {
         match value {
             MSG_HELLO => Ok(MessageType::Hello),
 

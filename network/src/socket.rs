@@ -6,6 +6,7 @@ use crate::server::Server;
 use crate::messages::{MessageType, ValidatePayloadSize};
 use crate::Error;
 use crate::messages::BasicHeader;
+use utils::slice_reader;
 
 pub enum SocketDirection {
     Inbound,
@@ -30,12 +31,15 @@ impl Socket {
     }
     async fn read_basic_header(&mut self) -> Result<BasicHeader, Error> {
         let mut buf = [0u8; 8];
+        let mut offset: usize = 0;
         self.stream.read_exact(&mut buf).await?;
 
         let header = BasicHeader {
-            msg_type: MessageType::try_from(u16::from_le_bytes(buf[..2].try_into().unwrap()))?,
-            msg_flags: u16::from_le_bytes(buf[2..4].try_into().unwrap()),
-            msg_length: u32::from_le_bytes(buf[4..8].try_into().unwrap()),
+            msg_type: MessageType::try_from(
+                slice_reader::try_read_uint16(&buf, &mut offset)?
+            )?,
+            msg_flags: slice_reader::try_read_uint16(&buf, &mut offset)?,
+            msg_length: slice_reader::try_read_uint32(&buf, &mut offset)?,
         };
 
         if !ValidatePayloadSize(&header) {

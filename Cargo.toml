@@ -2,7 +2,8 @@
 
 members = [
   "account",
-  "network"
+  "network",
+  "utils"
 ]
 
 resolver = "3"

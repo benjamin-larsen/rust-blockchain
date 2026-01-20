@@ -15,15 +15,16 @@ pub enum MessageType {
 
 const MSG_HELLO: u16 = MessageType::Hello as u16;
 
-pub fn ValidatePayloadSize(header: &BasicHeader) -> bool {
-    return match header.msg_type {
-        MessageType::Hello => header.msg_length == 152,
-        
+pub(crate) fn validate_payload_size(header: &BasicHeader) -> bool {
+    match header.msg_type {
+        MessageType::Hello => header.msg_length == 160,
+
         _ => true
     }
 }
 
 impl MessageType {
+    // Basic Message is one that is sent/received pre-authentication.
     pub fn is_basic(&self) -> bool {
         match self {
             MessageType::Hello => true,

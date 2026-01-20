@@ -7,3 +7,5 @@ edition = "2024"
 account = { path = "../account" }
 network = { path = "../network" }
 tokio = { version = "1.49.0", features = ["rt", "rt-multi-thread"] }
+ed25519-dalek = { version = "2.2.0", default-features = false, features = ["fast", "zeroize", "std"] }
+rand = { version = "0.9.2", default-features = false, features = ["os_rng"] }

@@ -1,15 +1,16 @@
 use std::sync::Arc;
 use tokio::net::TcpListener;
 use tokio::runtime::Handle;
-use crate::{handle_sock, SocketDirection};
-use crate::socket::Socket;
+use crate::socket::{handle_sock, SocketDirection, Socket};
+use ed25519_dalek::SigningKey;
 
 pub trait NodeConfig: Send + Sync {
     fn server_addr(&self) -> &str;
+    fn keypair(&self) -> &SigningKey;
 }
 
 pub struct Server {
-    config: Arc<dyn NodeConfig>,
+    pub(crate) config: Arc<dyn NodeConfig>,
 }
 
 async fn start_server(server: Arc<Server>) {

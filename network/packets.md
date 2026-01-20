@@ -45,9 +45,11 @@ HMAC signature signs `Sequence || H(Basic Header) || H(Payload)` with the Sessio
 
 This is the first message as part of the Handshake Sequence.
 
+Signature is the last 64 bytes, designed for future-proofing compatability.
+
 Signature is of `H(Version || Magic || Public Key || Session Token || Node Flags || Timestamp)`, i.e. the Hello Message excluding Signature.
 
-*160 bytes*
+**At least** *162 bytes* **not more than** *1024 bytes*
 
 | Offset (Bytes) |    Field Name    | Field Type | Description                                                     |
 |---------------:|:----------------:|:----------:|-----------------------------------------------------------------|
@@ -56,6 +58,7 @@ Signature is of `H(Version || Magic || Public Key || Session Token || Node Flags
 |             12 |    Public Key    |  byte[32]  | Node's Public Key                                               |
 |             44 |  Session Token   |  byte[32]  | Ephemeral Token                                                 |
 |             76 |    Node Flags    |   UInt32   | Node Flags such as Bootstrap, Minimal/Pruned Node etc.          |
-|             80 | Initial Sequence |   UInt64   | The Sequence for the first Authenticated Message.               |
-|             88 |    Timestamp     |   UInt64   | Timestamp of this Version Packet, used to avoid replay attacks. |
-|             96 |    Signature     |  byte[64]  | Signature of Hello Packet, signed with Node Public Key.         |
+|             80 |       Port       |   UInt16   | Server Port of peer, 0 if disabled.                             |
+|             82 | Initial Sequence |   UInt64   | The Sequence for the first Authenticated Message.               |
+|             90 |    Timestamp     |   UInt64   | Timestamp of this Version Packet, used to avoid replay attacks. |
+|            ... |    Signature     |  byte[64]  | Signature of Hello Packet, signed with Node Public Key.         |

@@ -8,7 +8,7 @@ pub(crate) struct BasicHeader {
 }
 
 #[repr(u16)]
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub enum MessageType {
     Hello = 0
 }
@@ -17,7 +17,7 @@ const MSG_HELLO: u16 = MessageType::Hello as u16;
 
 pub(crate) fn validate_payload_size(header: &BasicHeader) -> bool {
     match header.msg_type {
-        MessageType::Hello => header.msg_length == 160,
+        MessageType::Hello => header.msg_length >= 162 && header.msg_length <= 1024,
 
         _ => true
     }

@@ -1,9 +1,7 @@
 ﻿// All integer types are Little Endian variant.
 
 #[derive(Debug)]
-pub enum ReadError {
-    Error
-}
+pub struct ReadError;
 
 pub fn try_read_array<const N: usize>(buf: &[u8], offset: &mut usize) -> Result<[u8; N], ReadError> {
     let start_offset = *offset;
@@ -11,7 +9,7 @@ pub fn try_read_array<const N: usize>(buf: &[u8], offset: &mut usize) -> Result<
 
     *offset += N;
 
-    buf[start_offset..end_offset].try_into().map_err(|_| ReadError::Error)
+    buf[start_offset..end_offset].try_into().map_err(|_| ReadError)
 }
 
 pub fn try_read_uint16(buf: &[u8], offset: &mut usize) -> Result<u16, ReadError> {

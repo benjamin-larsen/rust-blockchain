@@ -7,6 +7,7 @@ pub enum Error {
     RandError(utils::RandError),
     TimeError(utils::time::TimeError),
     SignatureError(ed25519_dalek::SignatureError),
+    HmacError,
     InvalidMessage,
     InvalidPayloadSize,
     AuthError,

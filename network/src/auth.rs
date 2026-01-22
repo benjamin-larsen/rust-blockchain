@@ -8,6 +8,7 @@ use crate::messages::{BasicHeader, MessageType};
 use crate::constants::{PROTOCOL_VERSION, NETWORK_MAGIC, MIN_PROTOCOL_VERSION};
 use utils::{slice_reader, slice_writer, time, try_generate_rand};
 use sha2::{Sha256, Digest};
+use x25519_dalek::{PublicKey, StaticSecret};
 use tokio::io::AsyncWriteExt;
 use crate::messages::MessageType::Hello;
 
@@ -129,8 +130,6 @@ async fn write_hello(socket: &mut Socket, exch_key: &[u8; 32]) -> Result<()> {
     Ok(())
 }
 
-use x25519_dalek::{PublicKey, StaticSecret};
-
 pub async fn process_auth(socket: &mut Socket) -> Result<()> {
     let session_key = StaticSecret::from(try_generate_rand::<32>()?);
 
@@ -147,7 +146,8 @@ pub async fn process_auth(socket: &mut Socket) -> Result<()> {
         &PublicKey::from(hello_in.exch_key)
     );
 
-    println!("Shared Secret: {:02X?}\nLocal Public: {:02X?}\nRemote Public: {:02X?}", shared_secret.to_bytes(), PublicKey::from(&session_key).to_bytes(), hello_in.exch_key);
+    socket.remote_sequence = hello_in.sequence;
+    socket.hmac_key = Some(shared_secret.to_bytes());
 
     Ok(())
 }

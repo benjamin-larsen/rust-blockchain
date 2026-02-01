@@ -1,4 +1,4 @@
-﻿use utils::slice_reader;
+﻿use utils::{slice_reader, slice_writer};
 use crate::{Error, Result};
 
 #[derive(Debug)]
@@ -29,20 +29,32 @@ pub(crate) fn decode_basic_header(buf: [u8; BASIC_HEADER_SIZE]) -> Result<BasicH
     Ok(header)
 }
 
+pub(crate) fn encode_basic_header(header: &BasicHeader) -> Result<[u8; BASIC_HEADER_SIZE]> {
+    if !validate_payload_size(&header) {
+        return Err(Error::InvalidPayloadSize);
+    }
+    
+    let mut buf = [0u8; 8];
+    let mut offset: usize = 0;
+
+    slice_writer::try_write_uint16(header.msg_type as u16, &mut buf, &mut offset)?;
+    slice_writer::try_write_uint16(header.msg_flags, &mut buf, &mut offset)?;
+    slice_writer::try_write_uint32(header.msg_length, &mut buf, &mut offset)?;
+
+    Ok(buf)
+}
+
 const MSG_HELLO: u16 = 0;
-const MSG_PING: u16 = 1;
 
 #[repr(u16)]
 #[derive(Debug, Copy, Clone)]
 pub enum MessageType {
     Hello = MSG_HELLO,
-    Ping = MSG_PING,
 }
 
 pub(crate) fn validate_payload_size(header: &BasicHeader) -> bool {
     match header.msg_type {
         MessageType::Hello => header.msg_length >= 162 && header.msg_length <= 1024,
-        MessageType::Ping => header.msg_length == 0
     }
 }
 
@@ -62,7 +74,6 @@ impl TryFrom<u16> for MessageType {
     fn try_from(value: u16) -> Result<Self> {
         match value {
             MSG_HELLO => Ok(MessageType::Hello),
-            MSG_PING => Ok(MessageType::Ping),
 
             _ => Err(Error::InvalidMessage)
         }

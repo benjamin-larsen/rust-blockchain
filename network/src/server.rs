@@ -2,14 +2,9 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 use tokio::net::{TcpListener, TcpStream};
 use tokio::runtime::Handle;
+use utils::NodeConfig;
 use crate::socket::{handle_sock, SocketDirection, Socket};
-use ed25519_dalek::SigningKey;
 
-pub trait NodeConfig: Send + Sync {
-    fn server_addr(&self) -> &str;
-    fn server_port(&self) -> u16;
-    fn keypair(&self) -> &SigningKey;
-}
 pub struct Server {
     pub(crate) config: Arc<dyn NodeConfig>,
 }
@@ -46,8 +41,17 @@ impl Server {
     }
 }
 
-async fn start_server(server: Arc<Server>) {
-    let listener = TcpListener::bind((server.config.server_addr(), server.config.server_port())).await.unwrap();
+async fn start_server(server_addr: String, server_port: u16, server: Arc<Server>) {
+    let listener = TcpListener::bind((server_addr, server_port)).await.unwrap();
+
+    if server_port == 0 {
+        let local_port = listener.local_addr().unwrap().port();
+
+        if local_port == 0 {
+            panic!("Invalid local port.");
+        }
+        server.config.set_port(local_port);
+    }
 
     loop {
         let Ok((socket, _)) = listener.accept().await else {
@@ -88,12 +92,12 @@ pub fn spawn(
         config,
     });
 
-    if server.config.server_port() != 0 {
-        let server_clone = server.clone();
-
-        rt_handle.spawn(async move {
-            start_server(server_clone).await;
-        });
+    if let Some(server_port) = server.config.server_port() {
+        rt_handle.spawn(start_server(
+            server.config.server_addr().to_owned(),
+            server_port,
+            server.clone()
+        ));
     }
 
     return server;

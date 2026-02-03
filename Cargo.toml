@@ -3,6 +3,7 @@
 members = [
   "account",
   "network",
+  "peer_discovery",
   "utils"
 ]
 

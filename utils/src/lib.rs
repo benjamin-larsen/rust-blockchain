@@ -1,6 +1,7 @@
 pub mod slice_reader;
 pub mod slice_writer;
 pub mod time;
+pub mod net;
 mod rand;
 mod node_config;
 

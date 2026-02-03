@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 account = { path = "../account" }
 network = { path = "../network" }
+peer_discovery = { path = "../peer_discovery" }
 tokio = { version = "1.49.0", features = ["rt", "rt-multi-thread"] }
 ed25519-dalek = { version = "2.2.0", default-features = false, features = ["fast", "zeroize", "std"] }
 utils = { path = "../utils" }
